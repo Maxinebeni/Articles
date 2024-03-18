@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Article Recommender</title>
+</head>
+<body>
+    <h1>Article Recommendation System</h1>
+    <form action="/" method="post">
+        <label for="summary">Enter Article Summary Here:</label><br>
+        <textarea id="summary" name="summary" rows="4" cols="50"></textarea><br>
+        <input type="submit" value="Get Recommendations">
+    </form>
+
+    {% if recommendations %}
+    <h2>Recommended Articles:</h2>
+    <ul>
+        {% for recommendation in recommendations %}
+        <li><a href="{{ recommendation }}">{{ recommendation }}</a></li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    {% if placeholder_article %}
+    <h2>Placeholder Article:</h2>
+    <p>Title: <a href="{{ placeholder_article.url }}">{{ placeholder_article.title }}</a></p>
+    {% endif %}
+    {% endif %}
+</body>
+</html>
