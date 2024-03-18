@@ -6,6 +6,11 @@ from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
+import nltk
+
+
+nltk.download('stopwords')
+
 
 app = Flask(__name__)
 
