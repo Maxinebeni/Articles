@@ -13,7 +13,10 @@ nltk.download('punkt')
 nltk.download('stopwords')
 
 
+from flask_cors import CORS
+
 app = Flask(__name__)
+CORS(app)
 
 # Load TF-IDF vectorizer and cosine similarity matrix
 with open('cosine_model.pkl', 'rb') as file:
