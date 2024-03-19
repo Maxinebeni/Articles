@@ -7,12 +7,15 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 import nltk
+from flask_cors import CORS
+
 
 # Download NLTK data
 nltk.download('punkt')
 nltk.download('stopwords')
 
 app = Flask(__name__)
+CORS(app)
 
 # Load TF-IDF vectorizer and cosine similarity matrix
 with open('cosine_model.pkl', 'rb') as file:
