@@ -7,24 +7,58 @@
 </head>
 <body>
     <h1>Article Recommendation System</h1>
-    <form action="/" method="post">
+    <form id="summaryForm">
         <label for="summary">Enter Article Summary Here:</label><br>
         <textarea id="summary" name="summary" rows="4" cols="50"></textarea><br>
         <input type="submit" value="Get Recommendations">
     </form>
 
-    {% if recommendations %}
-    <h2>Recommended Articles:</h2>
-    <ul>
-        {% for recommendation in recommendations %}
-        <li><a href="{{ recommendation }}">{{ recommendation }}</a></li>
-        {% endfor %}
-    </ul>
-    {% else %}
-    {% if placeholder_article %}
-    <h2>Placeholder Article:</h2>
-    <p>Title: <a href="{{ placeholder_article.url }}">{{ placeholder_article.title }}</a></p>
-    {% endif %}
-    {% endif %}
+    <div id="recommendations">
+        <!-- Recommended articles will be displayed here -->
+    </div>
+
+    <script>
+        document.getElementById('summaryForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const summary = document.getElementById('summary').value;
+            const response = await fetch('/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({
+                    'summary': summary
+                })
+            });
+
+            if (response.ok) {
+                const recommendations = await response.json();
+                renderRecommendations(recommendations);
+            } else {
+                console.error('Failed to fetch recommendations from the API');
+            }
+        });
+
+        function renderRecommendations(recommendations) {
+            const recommendationsList = document.getElementById('recommendations');
+
+            if (recommendations.length > 0) {
+                const list = document.createElement('ul');
+                recommendations.forEach(function(url) {
+                    const listItem = document.createElement('li');
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.textContent = url;
+                    listItem.appendChild(link);
+                    list.appendChild(listItem);
+                });
+                recommendationsList.innerHTML = '';
+                recommendationsList.appendChild(list);
+            } else {
+                recommendationsList.innerHTML = '<p>No recommendations found</p>';
+            }
+        }
+    </script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, request, jsonify, render_template
 import pickle
 from nltk.tokenize import word_tokenize
 from nltk.stem import PorterStemmer
@@ -7,16 +7,12 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 import nltk
+
+# Download NLTK data
 nltk.download('punkt')
-
-
 nltk.download('stopwords')
 
-
-from flask_cors import CORS
-
 app = Flask(__name__)
-CORS(app)
 
 # Load TF-IDF vectorizer and cosine similarity matrix
 with open('cosine_model.pkl', 'rb') as file:
@@ -53,20 +49,21 @@ placeholder_article = {
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    recommendations = []
     if request.method == 'POST':
-        summary = request.form['summary']
-        processed_summary = preprocess(summary)
-        summary_vectorized = tfidf_vectorizer.transform([processed_summary])
-        similarity_scores = cosine_similarity(summary_vectorized, tfidf_matrix)
-        similar_indices = similarity_scores.argsort()[0][::-1]
-        similar_articles = df_health.iloc[similar_indices]
-        similar_articles = similar_articles[similarity_scores[0][similar_indices] > 0.10][:2]
-        if len(similar_articles) == 0:
-            recommendations.append(placeholder_article)
-        else:
-            recommendations.extend(similar_articles['url'].tolist())
-        return render_template('index.html', recommendations=recommendations)
+        try:
+            summary = request.form['summary']
+            processed_summary = preprocess(summary)
+            summary_vectorized = tfidf_vectorizer.transform([processed_summary])
+            similarity_scores = cosine_similarity(summary_vectorized, tfidf_matrix)
+            similar_indices = similarity_scores.argsort()[0][::-1]
+            similar_articles = df_health.iloc[similar_indices]
+            similar_articles = similar_articles[similarity_scores[0][similar_indices] > 0.10][:2]
+            
+            recommendations = similar_articles['url'].tolist() if not similar_articles.empty else [placeholder_article['url']]
+            
+            return jsonify(recommendations), 200
+        except Exception as e:
+            return jsonify({'error': str(e)}), 400
     else:
         return render_template('index.html', recommendations=None)
 
